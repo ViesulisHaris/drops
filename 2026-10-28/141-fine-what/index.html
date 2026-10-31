@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>141 · what does k mean</title>
+<style>
+:root{--bg:#0b0b0d;--card:#18181b;--ink:#f4f4f5;--muted:#a1a1aa;--line:#2a2a2e;--accent:#ff4d6d;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 40px)}
+main{max-width:520px;margin:0 auto;display:grid;gap:18px}
+h1{font-size:1.45rem;line-height:1.2;margin:0}
+.sub{color:var(--muted);font-size:.9rem;margin:4px 0 0}
+button{font:inherit;font-weight:600;border:0;border-radius:14px;padding:15px 18px;width:100%;cursor:pointer}
+#save{background:var(--accent);color:#fff;font-size:1.05rem}
+#save[disabled]{opacity:.55}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+.slides{display:grid;gap:14px}
+figure{margin:0}
+img,video{display:block;width:100%;height:auto;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+figcaption{color:var(--muted);font-size:.78rem;margin-top:6px;font-variant-numeric:tabular-nums}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.box h2{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
+.box p{margin:0}
+.copy{background:#27272a;color:var(--ink);padding:11px 14px;font-size:.92rem}
+ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:.92rem}
+.q{color:var(--muted)}
+</style></head>
+<body><main>
+<header><h1>141 · what does k mean</h1><p class="sub">4 slides · post them in this order · this page is gone in a few days</p></header>
+<button id="save" disabled>Preparing 4 slides…</button>
+<p class="hint" id="hint">Tap the button, then choose <b>Save 4 Images</b>. Or press and hold any picture → Save to Photos.</p>
+
+<section class="slides">
+<figure><img src="01-chat.png" alt="Slide 1" loading="eager" width="1080" height="1920"><figcaption>01 · chat</figcaption></figure>
+<figure><img src="02-gift.png" alt="Slide 2" loading="eager" width="1080" height="1920"><figcaption>02 · gift</figcaption></figure>
+<figure><img src="03-gift.png" alt="Slide 3" loading="eager" width="1080" height="1920"><figcaption>03 · gift</figcaption></figure>
+<figure><img src="04-chat.png" alt="Slide 4" loading="lazy" width="1080" height="1920"><figcaption>04 · chat</figcaption></figure>
+</section>
+
+</main>
+<script>
+const urls = ["01-chat.png","02-gift.png","03-gift.png","04-chat.png"];
+const names = ["01-chat.png","02-gift.png","03-gift.png","04-chat.png"];
+const btn = document.getElementById("save");
+const hint = document.getElementById("hint");
+let files = null;
+// Fetched up front, so the tap goes straight to the share sheet (Safari only opens it from a tap).
+Promise.all(urls.map((u, i) => fetch(u).then((r) => r.blob()).then((b) => new File([b], names[i], { type: /.mp4$/i.test(names[i]) ? "video/mp4" : "image/png" }))))
+  .then((f) => {
+    files = f;
+    if (navigator.canShare && navigator.canShare({ files })) { btn.disabled = false; btn.textContent = "Save all " + files.length + " to Photos"; }
+    else { btn.textContent = "Press and hold each slide to save it"; }
+  })
+  .catch(() => { btn.textContent = "Press and hold each slide to save it"; });
+btn.addEventListener("click", async () => {
+  if (!files) return;
+  try { await navigator.share({ files }); hint.textContent = "Saved? They are in Photos, in order. TikTok → + → Photo."; }
+  catch (e) { if (e && e.name !== "AbortError") hint.textContent = "Could not open the share sheet — press and hold each slide instead."; }
+});
+document.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+  const text = document.getElementById(b.dataset.copy).textContent;
+  try { await navigator.clipboard.writeText(text); b.textContent = "Copied"; }
+  catch { const r = document.createRange(); r.selectNodeContents(document.getElementById(b.dataset.copy)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected — tap Copy"; }
+}));
+</script>
+</body></html>
